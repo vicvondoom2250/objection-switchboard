@@ -1,0 +1,629 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Objection Switchboard — Franchise restaurants × Uber Eats</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#F5F3EE; --panel:#FFFFFF; --ink:#1B1E1A; --ink-2:#4A4F48; --ink-3:#7B807A;
+  --line:#DCD9D0; --line-strong:#B9B6AC;
+  --green:#0E7A4F; --green-ink:#085C3A; --green-wash:#E5F2EB;
+  --amber:#D99A17; --amber-wash:#FBF1D6;
+  --red:#B8362B; --red-wash:#F8E4E1;
+  --focus:#0E7A4F;
+  color-scheme:light;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --paper:#171A17; --panel:#1F2320; --ink:#EEECE6; --ink-2:#C2C0B8; --ink-3:#8E8D86;
+    --line:#333833; --line-strong:#4A4F49;
+    --green:#4FB383; --green-ink:#8ED9B3; --green-wash:#1E3328;
+    --amber:#E3B04A; --amber-wash:#3A3119;
+    --red:#E0715F; --red-wash:#3C2320;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#171A17; --panel:#1F2320; --ink:#EEECE6; --ink-2:#C2C0B8; --ink-3:#8E8D86;
+  --line:#333833; --line-strong:#4A4F49;
+  --green:#4FB383; --green-ink:#8ED9B3; --green-wash:#1E3328;
+  --amber:#E3B04A; --amber-wash:#3A3119;
+  --red:#E0715F; --red-wash:#3C2320;
+  color-scheme:dark;
+}
+html{scroll-padding-top:env(safe-area-inset-top,0px);height:100%}
+*,*::before,*::after{box-sizing:inherit}
+body{margin:0;height:100%;background:var(--paper);color:var(--ink);font-family:"Public Sans",system-ui,-apple-system,"Segoe UI",sans-serif;font-size:15px;line-height:1.5;-webkit-font-smoothing:antialiased}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--paper)}
+a{color:var(--green-ink)}
+button{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--focus);outline-offset:2px}
+
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:9;background:var(--paper);border-bottom:1px solid var(--line);padding:14px 20px 12px}
+.top-row{display:flex;align-items:baseline;gap:18px;flex-wrap:wrap;max-width:1240px;margin:0 auto}
+h1{font-family:"Source Serif 4",Georgia,serif;font-weight:600;font-size:22px;margin:0;letter-spacing:-.01em}
+h1 small{font-family:"Public Sans",sans-serif;font-weight:400;font-size:13px;color:var(--ink-3);margin-left:8px}
+.search{flex:1 1 260px;display:flex;align-items:center;gap:8px;background:var(--panel);border:1px solid var(--line-strong);border-radius:8px;padding:7px 10px;min-width:220px}
+.search input{border:0;background:transparent;flex:1;font:inherit;font-size:15px;color:var(--ink);outline:none;min-width:0}
+.search input::placeholder{color:var(--ink-3)}
+.search kbd{font:12px/1 "Public Sans",sans-serif;color:var(--ink-3);border:1px solid var(--line);border-radius:4px;padding:2px 5px}
+.chips{display:flex;gap:6px;flex-wrap:wrap;max-width:1240px;margin:10px auto 0}
+.chip{border:1px solid var(--line-strong);background:transparent;border-radius:999px;padding:4px 11px;font-size:13px;cursor:pointer;color:var(--ink-2)}
+.chip[aria-pressed="true"]{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+.chip .n{color:inherit;opacity:.6;margin-left:4px}
+
+.wrap{max-width:1240px;margin:0 auto;padding:18px 20px 60px;display:grid;grid-template-columns:minmax(260px,360px) 1fr;gap:22px;align-items:start}
+@media (max-width:820px){.wrap{grid-template-columns:1fr;padding:14px 14px 60px}}
+
+.board{position:sticky;top:calc(env(safe-area-inset-top,0px) + 112px)}
+@media (max-width:820px){.board{position:static}}
+.group{margin-bottom:14px}
+.group h2{font-size:12px;font-weight:600;color:var(--ink-3);margin:0 0 4px 2px;letter-spacing:.02em}
+.line{display:flex;align-items:center;gap:10px;width:100%;text-align:left;background:var(--panel);border:1px solid var(--line);border-left:4px solid var(--line-strong);border-radius:6px;padding:8px 10px;margin-bottom:5px;cursor:pointer;transition:border-color .12s,background .12s}
+.line:hover{border-color:var(--line-strong)}
+.line[aria-current="true"]{border-left-color:var(--green);background:var(--green-wash);border-color:var(--green)}
+.line .q{flex:1;font-size:14px;line-height:1.3}
+.line .freq{width:8px;height:8px;border-radius:50%;flex:none}
+.freq.daily{background:var(--red)}
+.freq.weekly{background:var(--amber)}
+.freq.rare{background:var(--line-strong)}
+.line.hidden{display:none}
+.legend{font-size:12px;color:var(--ink-3);display:flex;gap:12px;margin:0 2px 12px}
+.legend span{display:inline-flex;align-items:center;gap:5px}
+.empty{color:var(--ink-3);padding:20px 4px;font-size:14px}
+
+.card{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:26px 28px 22px;min-height:420px}
+@media (max-width:820px){.card{padding:20px 18px}}
+.card .cat{font-size:13px;color:var(--ink-3);margin-bottom:6px}
+.card h2{font-family:"Source Serif 4",Georgia,serif;font-size:27px;line-height:1.2;font-weight:600;margin:0 0 6px;letter-spacing:-.01em}
+.card .hear{font-size:13px;color:var(--ink-3);margin-bottom:22px}
+.sec{margin-bottom:20px}
+.sec h3{font-size:13px;font-weight:600;margin:0 0 6px;color:var(--ink-2)}
+.sec p,.sec li{margin:0;color:var(--ink);max-width:68ch}
+.sec ul{margin:0;padding-left:18px}
+.sec li{margin-bottom:5px}
+.say{font-family:"Source Serif 4",Georgia,serif;font-size:17px;line-height:1.55;border-left:3px solid var(--green);padding:6px 0 6px 14px;margin:0 0 10px;max-width:66ch}
+.dont{background:var(--red-wash);border-radius:6px;padding:10px 12px;max-width:68ch}
+.dont li{color:var(--ink)}
+.fill{background:var(--amber-wash);border-bottom:1px dashed var(--amber);padding:0 3px;border-radius:2px}
+.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:18px;padding-top:14px;border-top:1px solid var(--line)}
+.btn{border:1px solid var(--line-strong);background:transparent;border-radius:6px;padding:6px 12px;font-size:13px;cursor:pointer}
+.btn:hover{background:var(--paper)}
+.btn.ok{border-color:var(--green);color:var(--green-ink)}
+.card.pending{display:grid;place-items:center;text-align:center;color:var(--ink-3)}
+.card.pending p{max-width:34ch;margin:0}
+.card.pending strong{color:var(--ink);font-family:"Source Serif 4",Georgia,serif;font-weight:600;font-size:20px;display:block;margin-bottom:8px}
+
+.newhire{background:var(--green-wash);border:1px solid var(--green);border-radius:10px;padding:16px 18px;margin-bottom:16px}
+.newhire h2{font-family:"Source Serif 4",Georgia,serif;font-size:18px;margin:0 0 6px;font-weight:600}
+.newhire p{margin:0 0 8px;max-width:70ch;color:var(--ink)}
+.newhire ol{margin:0;padding-left:20px;max-width:70ch}
+.newhire li{margin-bottom:3px}
+.newhire button.link{border:0;background:none;padding:0;color:var(--green-ink);text-decoration:underline;cursor:pointer;font-size:inherit}
+.foot{max-width:1240px;margin:0 auto;padding:0 20px 40px;font-size:13px;color:var(--ink-3)}
+.addbtn{border:1px solid var(--green);background:var(--green);color:#fff;border-radius:8px;padding:8px 14px;font-size:14px;font-weight:500;cursor:pointer;white-space:nowrap}
+:root[data-theme="dark"] .addbtn,:root:not([data-theme="light"]) .addbtn{color:var(--paper)}
+@media (prefers-color-scheme:light){:root:not([data-theme="dark"]) .addbtn{color:#fff}}
+.addbtn[hidden]{display:none}
+.group.team h2{color:var(--green-ink)}
+.line.team{border-left-color:var(--amber)}
+.line.team[aria-current="true"]{border-left-color:var(--green)}
+.by{font-size:13px;color:var(--ink-3);margin:-14px 0 20px}
+dialog{border:1px solid var(--line-strong);border-radius:12px;background:var(--panel);color:var(--ink);padding:0;width:min(640px,calc(100vw - 32px));max-height:calc(100vh - 32px)}
+dialog::backdrop{background:rgba(0,0,0,.35)}
+.form{padding:22px 24px}
+.form h2{font-family:"Source Serif 4",Georgia,serif;font-size:22px;margin:0 0 4px;font-weight:600}
+.form .hint{font-size:13px;color:var(--ink-3);margin:0 0 16px}
+.form label{display:block;font-size:13px;font-weight:600;color:var(--ink-2);margin:12px 0 4px}
+.form input,.form textarea,.form select{width:100%;font:inherit;font-size:14px;color:var(--ink);background:var(--paper);border:1px solid var(--line-strong);border-radius:6px;padding:8px 10px}
+.form textarea{min-height:70px;resize:vertical}
+.form .row{display:flex;gap:8px;justify-content:flex-end;margin-top:18px}
+.form .err{color:var(--red);font-size:13px;margin-top:10px;min-height:1.2em}
+.status{font-size:13px;color:var(--ink-3);margin:0 2px 10px}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="top-row">
+    <h1>Objection Switchboard <small>Franchise restaurants × Uber Eats</small></h1>
+    <label class="search">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+      <input id="q" type="search" placeholder="Type what the operator just said…" autocomplete="off" aria-label="Search objections">
+      <kbd>/</kbd>
+    </label>
+    <button class="addbtn" id="addbtn" hidden>Add an objection</button>
+  </div>
+  <div class="chips" id="chips" role="group" aria-label="Filter by category"></div>
+</header>
+
+<main class="wrap">
+  <aside class="board" aria-label="Objections">
+    <div class="legend"><span><i class="freq daily" style="display:inline-block;width:8px;height:8px;border-radius:50%"></i> hear it daily</span><span><i class="freq weekly" style="display:inline-block;width:8px;height:8px;border-radius:50%"></i> weekly</span><span><i class="freq rare" style="display:inline-block;width:8px;height:8px;border-radius:50%"></i> rare</span></div>
+    <div id="board"></div>
+    <div class="empty" id="empty" hidden>Nothing matches. Try a shorter word — “fee”, “corporate”, “cold”, “DoorDash”.</div>
+  </aside>
+
+  <section id="main">
+    <div class="newhire" id="newhire">
+      <h2>New on the team? Start here.</h2>
+      <p>Every answer on this board follows the same five beats. Learn the beats, not the lines: <strong>Acknowledge</strong> it’s fair → <strong>Clarify</strong> what’s actually behind it → <strong>Reframe</strong> with a fact or a question → <strong>Confirm</strong> it’s handled → <strong>Advance</strong> to a next step with a date.</p>
+      <p>Read these seven first. You’ll hear them on your first day:</p>
+      <ol id="starter"></ol>
+    </div>
+    <article class="card pending" id="card" aria-live="polite">
+      <div><strong>Pick an objection on the left</strong><p>Or press <b>/</b> and type what the operator just said.</p></div>
+    </article>
+  </section>
+</main>
+
+<dialog id="dlg">
+  <div class="form">
+    <h2>Add an objection</h2>
+    <p class="hint">Something you heard on a call that isn’t on the board, or a better way to handle one that is. It shows up for the whole team as soon as you save it.</p>
+    <label for="f-q">What the operator said</label>
+    <input id="f-q" maxlength="140" placeholder="“We don’t do delivery on weekends.”">
+    <label for="f-cat">Category</label>
+    <select id="f-cat"></select>
+    <label for="f-behind">What’s usually behind it</label>
+    <textarea id="f-behind" maxlength="600"></textarea>
+    <label for="f-ask">Ask first (one question per line)</label>
+    <textarea id="f-ask" maxlength="600"></textarea>
+    <label for="f-say">Then say</label>
+    <textarea id="f-say" maxlength="1200" placeholder="The words that worked. Write it the way you’d say it."></textarea>
+    <label for="f-dont">Don’t (one per line, optional)</label>
+    <textarea id="f-dont" maxlength="600"></textarea>
+    <label for="f-next">Advance to</label>
+    <input id="f-next" maxlength="200" placeholder="The next step you booked">
+    <label for="f-name">Your name</label>
+    <input id="f-name" maxlength="60" autocomplete="name">
+    <label for="f-key">Team password</label>
+    <input id="f-key" type="password" autocomplete="off">
+    <div class="err" id="f-err"></div>
+    <div class="row"><button class="btn" id="f-cancel">Cancel</button><button class="btn ok" id="f-save">Save to the board</button></div>
+  </div>
+</dialog>
+
+<p class="foot">Dots mark how often reps hear each one. Yellow-highlighted text is a placeholder for your current rate card, promo, or local proof point — fill those in before this goes to a new hire. To add or edit the built-in objections, change the OBJECTIONS list in this file. Team-added ones live in the database.</p>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<script>
+// ===== CONFIG — fill these in from your Supabase project (Settings → API) =====
+const CONFIG = {
+  SUPABASE_URL: "https://fxuqmrberujzmvxypjda.supabase.co",
+  SUPABASE_ANON_KEY: "sb_publishable_bUFagdjTTx7cP7Fc78eKIw_lhMNs-P7"
+};
+// The anon key is safe to ship in the page: it can only read the board and call the two
+// password-checked functions. The team password itself lives only in the database.
+
+const CATS = ["Fees & margin","Corporate & franchisor","Operations","Delivery quality & brand","Competition","Timing & trust","Contract, data & control"];
+const STARTER = ["commission","corporate-approval","already-doordash","cold-food","cannibalize","too-busy","tablet"];
+
+const OBJECTIONS = [
+// ---------- Fees & margin ----------
+{id:"commission",cat:0,freq:"daily",
+ q:"The commission eats my whole margin.",
+ behind:"They’re applying the marketplace fee to their dine-in P&L. Delivery orders are incremental, with different costs (no server, no table turn, no dine-in labor) and usually a different menu price. Most operators haven’t done the per-order math.",
+ ask:["What’s your average check on dine-in vs. what you think it’d be on delivery?","Are you pricing your delivery menu the same as in-store? Most of our franchise partners don’t.","How many of these orders would you have gotten anyway without us?"],
+ say:["That’s the right question to ask, and if the fee came out of the same orders you already have, I’d agree with you. It doesn’t. These are orders from people who weren’t going to walk in tonight.","Let’s run one real order together. Your <span class='fill'>[average delivery ticket]</span>, minus food cost, minus the fee on <span class='fill'>[plan they’d be on]</span> — what’s left per order, and how many of those a week would you have otherwise?"],
+ proof:["A one-order margin worksheet with their numbers, done on the call","Plan tiers: <span class='fill'>[your current plan names and fee %]</span>","Menu price uplift norm: <span class='fill'>[% most of your franchise partners add on delivery]</span>"],
+ dont:["Don’t say “everyone pays it.” Doesn’t move an operator who thinks their margin is thinner than everyone’s.","Don’t discount before you’ve done the per-order math — you lose the argument and the margin."],
+ next:"Book a 20-minute margin walkthrough with their last month’s sales."},
+{id:"menu-markup",cat:0,freq:"weekly",
+ q:"If I raise delivery prices, customers will notice and I’ll look greedy.",
+ behind:"Brand-protection fear, often the franchisor’s rule echoed back. The real question is whether a modest uplift costs them orders — it usually doesn’t.",
+ ask:["Has your franchisor set a delivery pricing policy, or is that your call?","What do the other units in your brand do on the app?"],
+ say:["Customers on the app compare you to the restaurant next to you on the app, not to your own dine-in menu. They expect delivery to cost a bit more — they’re paying for not leaving the couch.","If your franchisor caps the uplift, we build around that cap. If it’s your call, <span class='fill'>[X%]</span> is where most of your sister units sit and it hasn’t dented their order volume."],
+ proof:["Sister-unit examples from the same brand: <span class='fill'>[name 2–3 units and what they did]</span>"],
+ dont:["Don’t promise customers won’t notice. Some will; it rarely matters."],
+ next:"Pull the brand’s delivery pricing policy (or confirm there isn’t one) before the next call."},
+{id:"packaging",cat:0,freq:"weekly",
+ q:"Delivery packaging costs money and my franchisor has approved packaging I’d have to buy.",
+ behind:"Legit cost. They want to know it’s been thought about, not waved away.",
+ ask:["What packaging does your franchisor approve for delivery, and what does it run per order?"],
+ say:["It’s a real cost — budget it per order alongside the fee. Most operators land at <span class='fill'>[$ per order]</span> and it’s already built into the price uplift we talked about."],
+ proof:["Per-order cost model including packaging"],
+ dont:["Don’t skip it in the margin math; they’ll catch it."],
+ next:"Add packaging to the one-order worksheet."},
+{id:"refunds",cat:0,freq:"weekly",
+ q:"I’ll get killed on refunds and chargebacks I didn’t cause.",
+ behind:"They’ve heard horror stories from another operator or another platform. They want to know who eats the cost when the driver screws up.",
+ ask:["Where did you hear that — another platform, or someone in your brand?","What kind of issues are you worried about: missing items, late delivery, or wrong orders?"],
+ say:["Here’s how it actually splits: <span class='fill'>[your current refund-responsibility policy — courier issues vs. restaurant issues]</span>. You’re responsible for what leaves your kitchen; we’re responsible for what happens after.","And you can dispute any adjustment from the tablet. Operators who seal bags and check off items see refund rates of <span class='fill'>[benchmark]</span>."],
+ proof:["Refund policy one-pager","Dispute flow on the tablet (show it)"],
+ dont:["Don’t say refunds never happen."],
+ next:"Send the refund policy page; walk through the dispute flow at onboarding."},
+
+// ---------- Corporate & franchisor ----------
+{id:"corporate-approval",cat:1,freq:"daily",
+ q:"I can’t do anything — corporate handles that.",
+ behind:"Sometimes true, often a polite way to end the call. Find out whether the brand actually has a national agreement, prohibits third-party delivery, or just hasn’t said anything.",
+ ask:["Is there a signed national agreement with us, or has corporate just not said yes yet?","Who at your franchisor owns off-premise or digital?","Have any other units in your brand gone live on their own?"],
+ say:["Totally fair — I don’t want to put you sideways with your franchisor. Let me find out where the brand stands. If there’s a national deal, I’ll plug you into it. If there isn’t, I’ve got <span class='fill'>[number]</span> units in your system already live on their own.","Either way, the question of whether you want these orders is yours. The question of how we paper it is mine."],
+ proof:["Your internal list of brands with national agreements","Sister units already live"],
+ dont:["Don’t pitch around the franchisor. If you get an operator live against brand rules, you lose the whole brand."],
+ next:"Get the name of the corporate contact and confirm the brand’s status internally before calling back."},
+{id:"corporate-has-deal",cat:1,freq:"weekly",
+ q:"We already have a corporate deal with you — why are you calling me?",
+ behind:"They think the national agreement means they’re already live or that there’s nothing to decide. Often the unit isn’t activated, isn’t optimized, or is opted out.",
+ ask:["Are your orders actually flowing today? What did you do last week on the app?","Did you opt into the promos and menu features under that deal, or just the base listing?"],
+ say:["The deal is why I’m calling — it means the hard part is done. Your unit is <span class='fill'>[not activated / activated but no menu photos / opted out of X]</span>, and the units in your brand that fixed that are doing <span class='fill'>[benchmark]</span> more a week."],
+ proof:["Their unit’s current status in your system before you call"],
+ dont:["Don’t call without knowing their activation status. It’s the first thing they’ll test you on."],
+ next:"Book a 15-minute activation or optimization session."},
+{id:"brand-standards",cat:1,freq:"weekly",
+ q:"Our brand doesn’t allow third-party delivery — it hurts brand standards.",
+ behind:"A rule they’re repeating, or their own belief dressed up as a rule. Verify which.",
+ ask:["Is that a written policy, or your read on how corporate feels?","If the brand changed its stance, would you want to be first in line?"],
+ say:["If it’s a written policy, I respect it and I’ll take it up with the brand, not you. If it’s a preference, here’s what’s changed: <span class='fill'>[brands in their category that have moved to allow it]</span>. The brands that said no three years ago mostly say yes now, because their customers were ordering from the competitor next door."],
+ proof:["Comparable brands that reversed a no-delivery stance"],
+ dont:["Don’t argue brand standards with a franchisee. They can’t change it and resent being pushed."],
+ next:"Escalate to the brand-level conversation; keep the operator warm for when it opens."},
+
+// ---------- Operations ----------
+{id:"too-busy",cat:2,freq:"daily",
+ q:"I don’t have time to deal with onboarding right now.",
+ behind:"True at 11:45 a.m. Also the default brush-off. Make the ask small and specific.",
+ ask:["When’s your slowest 20 minutes this week?","Who runs your front counter when you’re not there — could they sit in?"],
+ say:["It’s 20 minutes, I do the setup, you approve the menu. I’ll come back at <span class='fill'>[their slow window]</span> and you won’t touch it again until orders show up.","The one thing I need from you is a yes on the menu. Everything else is me."],
+ proof:["Your actual onboarding checklist and time-to-live: <span class='fill'>[days]</span>"],
+ dont:["Don’t say “it’s easy.” Say exactly what they have to do and how long it takes."],
+ next:"Get the 20 minutes on the calendar before you hang up. Tuesday 2:30 beats “next week.”"},
+{id:"tablet",cat:2,freq:"daily",
+ q:"I don’t want another tablet cluttering my counter.",
+ behind:"Tablet fatigue is real in multi-platform kitchens. They want integration, not another screen.",
+ ask:["What POS are you on? What do you have on the counter today?"],
+ say:["If you’re on <span class='fill'>[POS]</span>, orders go straight into it — no tablet. If you’re not, the tablet is one device and it’s how you control prep times, pause orders, and dispute refunds. Most operators keep it because it gives them control, not because we make them."],
+ proof:["Your POS integration list"],
+ dont:["Don’t promise POS integration you haven’t confirmed for their system."],
+ next:"Confirm POS integration status before onboarding."},
+{id:"staff",cat:2,freq:"weekly",
+ q:"My crew can’t handle more orders — we’re already short-staffed.",
+ behind:"A labor objection, and a fair one. Delivery orders come in waves; they fear the dinner rush breaking.",
+ ask:["Where does it break today — the line, the window, or the front counter?","What would a manageable number of extra orders an hour look like?"],
+ say:["You control the throttle. Pause orders, extend prep times, or cap the volume from the tablet when the line backs up. Most operators start with <span class='fill'>[lunch-only / off-peak only]</span> and open it up once the crew’s got the rhythm.","And a delivery order doesn’t need a server, a table, or a host. It’s kitchen labor only."],
+ proof:["Show the pause and prep-time controls"],
+ dont:["Don’t say delivery orders are easier. They’re different, and a bad packing station makes them harder."],
+ next:"Propose a limited-hours launch and a review after two weeks."},
+{id:"tried-before",cat:2,freq:"weekly",
+ q:"We tried it before and it didn’t work.",
+ behind:"Something specific went wrong — bad menu setup, no photos, nobody watching the tablet, or a bad refund week. Find the one thing.",
+ ask:["When was that, and what happened? What made you shut it off?","Who was watching the tablet back then?"],
+ say:["That’s useful — tell me what broke and I’ll tell you whether it’s fixed. Most ‘didn’t work’ stories are a menu with no photos or a tablet nobody owned. Both are a 20-minute fix.","If it was <span class='fill'>[their specific issue]</span>, here’s what’s changed since: <span class='fill'>[relevant change]</span>."],
+ proof:["Their old account history if it exists","What changed since they left"],
+ dont:["Don’t say it’s different now without naming what’s different."],
+ next:"Relaunch with the one thing fixed and a two-week check-in."},
+
+// ---------- Delivery quality & brand ----------
+{id:"cold-food",cat:3,freq:"daily",
+ q:"Food shows up cold or late and the customer blames me.",
+ behind:"The single most common quality objection. They’ve seen bad reviews on another platform or heard from a peer.",
+ ask:["Which items are you most worried about? Fries and fried chicken travel worst — is that your menu?","Is this something you’ve seen happen, or something you’ve heard?"],
+ say:["Two levers you control: prep time and packaging. Set prep time honestly on the tablet and the courier shows up when the food’s ready, not before. Vented packaging for fried items is the difference between a 4-star and a 3-star.","And courier issues are rated against the courier, not you — <span class='fill'>[how ratings attribution works on your platform]</span>."],
+ proof:["Rating attribution policy","Packaging guidance for their menu type"],
+ dont:["Don’t say it never happens. Say what they control and what you do when it does."],
+ next:"Build the menu with realistic prep times at onboarding."},
+{id:"drivers",cat:3,freq:"weekly",
+ q:"I don’t want random drivers in my lobby bothering my dine-in customers.",
+ behind:"Lobby chaos and a feeling of losing control of their space.",
+ ask:["Do you have a pickup shelf or a spot by the door?"],
+ say:["A pickup shelf by the door with the order number on the bag solves 90% of it. Drivers want in and out faster than you do. We set pickup instructions on the account — ‘side door, shelf on the left’ — and that’s what the driver sees."],
+ proof:["Pickup instruction field; example from a sister unit"],
+ dont:["Don’t dismiss it. A bad driver interaction in the lobby is the story they’ll tell."],
+ next:"Set pickup instructions during onboarding; suggest a shelf."},
+{id:"cannibalize",cat:3,freq:"daily",
+ q:"These are my own customers — I’m paying a fee on orders I already had.",
+ behind:"The incrementality question. They assume their regulars will migrate to the app instead of walking in.",
+ ask:["What share of your sales today is off-premise — phone orders, pickup?","When your regular wants dinner at home on a Tuesday, where do they order now?"],
+ say:["Some overlap is real. The bigger number is the customer who ordered from the place next door because you weren’t on the app. In your trade area, <span class='fill'>[X]</span> people ordered <span class='fill'>[their cuisine]</span> on the app last month and you got none of it.","You keep your phone orders and your pickup. This is the Tuesday-at-home customer you don’t have a way to reach today."],
+ proof:["Trade-area demand data for their category: <span class='fill'>[source and number]</span>"],
+ dont:["Don’t claim zero cannibalization. Say the incremental share outweighs it and show the demand number."],
+ next:"Send the trade-area demand snapshot; book the margin walkthrough."},
+{id:"own-app",cat:3,freq:"weekly",
+ q:"We have our own app and our own delivery — we don’t need you.",
+ behind:"Usually a franchisor-built app with modest adoption. They’re proud of it and don’t want to look disloyal.",
+ ask:["How many orders a week come through your own app? Who delivers them?","Where do your first-time customers come from?"],
+ say:["Keep your app — it’s your best-margin channel for your regulars. We’re the front door for people who’ve never heard of you. Most operators run both: we bring the new customer, your app keeps them.","If your own delivery is your own staff, we also take the driver headache off nights you’re short."],
+ proof:["Operators in the same brand running both channels: <span class='fill'>[examples]</span>"],
+ dont:["Don’t knock their app. Position as the discovery channel, not a replacement."],
+ next:"Propose running both for 60 days and comparing new-customer counts."},
+
+// ---------- Competition ----------
+{id:"already-doordash",cat:4,freq:"daily",
+ q:"We’re already on DoorDash, that’s enough.",
+ behind:"They see platforms as interchangeable and one as the cap on their delivery demand. Different platforms have different customers in the same zip code.",
+ ask:["How much of your delivery comes through them? Has it plateaued?","Do you know how many people in your area use us and not them?"],
+ say:["Nobody switches apps to find you. The customer who only has our app open never sees you. Being on one platform means you’re invisible to the other half of the delivery market in your trade area — <span class='fill'>[local share figure]</span>.","Operators who add a second platform typically see <span class='fill'>[benchmark lift]</span> in total delivery orders, not a split of the same orders."],
+ proof:["Local platform share: <span class='fill'>[figure and source]</span>","Second-platform lift benchmark"],
+ dont:["Don’t trash the competitor. Don’t claim you’re bigger unless you can show it in their zip code."],
+ next:"Pull the local share number and send it with a one-line note."},
+{id:"exclusive-competitor",cat:4,freq:"rare",
+ q:"We signed an exclusive with another platform.",
+ behind:"Possibly real, possibly a misreading of a promo deal with an exclusivity window.",
+ ask:["When does it expire? Is it brand-wide or just your unit?"],
+ say:["Then the right move is a calendar reminder, not a pitch. Tell me the date and I’ll call you 30 days before with the numbers you’d need to decide."],
+ proof:["—"],
+ dont:["Don’t try to get them to break a contract."],
+ next:"Set a follow-up 30 days before expiry."},
+
+// ---------- Timing & trust ----------
+{id:"think-about-it",cat:5,freq:"daily",
+ q:"Let me think about it.",
+ behind:"Something’s unresolved and they haven’t said it, or they need someone else’s sign-off. Isolate it.",
+ ask:["What’s the part you still need to get comfortable with — the fee, the ops, or the franchisor?","Is there someone else who weighs in — a partner, a GM, corporate?"],
+ say:["Of course. Just so I send you the right thing: is it the margin math, or is it whether the kitchen can handle it? I’d rather answer the real question than send a brochure.","If it’s your partner, let’s get them on a 15-minute call together so you’re not relaying my answers."],
+ proof:["—"],
+ dont:["Don’t accept it as the end of the call. Don’t say “take your time” and hang up — you won’t hear back."],
+ next:"Isolate the one open question and book the next call with a date before ending."},
+{id:"send-info",cat:5,freq:"daily",
+ q:"Just send me some information.",
+ behind:"A polite exit. Information doesn’t close operators; a specific next step does.",
+ ask:["Happy to. What would you actually want to see — the fee breakdown, or what units in your brand are doing?"],
+ say:["I’ll send the one-page plan summary and your trade-area demand number. It’s two pages. When I follow up <span class='fill'>[day]</span>, the only question is whether the numbers make sense for your unit."],
+ proof:["Your two-page send: plan summary + demand snapshot"],
+ dont:["Don’t send a deck. Don’t send anything without a follow-up date attached."],
+ next:"Send two pages; book the follow-up before you send."},
+{id:"not-now",cat:5,freq:"weekly",
+ q:"Bad timing — we’re remodeling / changing GMs / it’s our slow season.",
+ behind:"Usually true. Slow season is actually the best time to onboard.",
+ ask:["When does that settle? What does a good week look like for a launch?"],
+ say:["Slow season is when you want to set this up — you learn the rhythm on 10 orders a day, not 60. Then when the busy season hits, it’s already running.","If it’s the GM change, let’s set up now and train the new GM on it as part of their onboarding."],
+ proof:["—"],
+ dont:["Don’t push past a remodel. Set the date and show up."],
+ next:"Get a specific launch week on the calendar, even if it’s six weeks out."},
+{id:"small-town",cat:5,freq:"weekly",
+ q:"There’s no demand for delivery in my town.",
+ behind:"They’re thinking of the app as a city thing. They may be right, or they may be looking at it from a 2019 lens.",
+ ask:["Have you looked at what the places near you are doing on the app?"],
+ say:["Let me check rather than guess. Here’s what’s ordering in <span class='fill'>[their zip]</span> right now: <span class='fill'>[demand snapshot]</span>. If it’s thin, I’ll tell you and we’ll revisit in six months. If it’s there, you’re leaving it to the pizza place."],
+ proof:["Zip-level demand data"],
+ dont:["Don’t argue without data. Pull it and call back."],
+ next:"Pull the zip demand number; call back with it the same day."},
+
+// ---------- Contract, data & control ----------
+{id:"customer-data",cat:6,freq:"weekly",
+ q:"You keep the customer data and I never learn who ordered.",
+ behind:"A sophisticated operator or one repeating franchisor talking points. The concern is that the platform owns the relationship.",
+ ask:["What would you do with the data if you had it — marketing, loyalty?"],
+ say:["Here’s exactly what you see and don’t see: <span class='fill'>[your current data-sharing policy — what the merchant dashboard shows]</span>. What you do get is repeat-customer counts, ratings, and item-level performance you don’t get from a walk-in.","And nothing stops you from putting a loyalty card or QR in the bag. Operators do it; the customer came from us and comes back direct."],
+ proof:["Merchant dashboard screenshot","Bag-insert examples"],
+ dont:["Don’t overpromise data access."],
+ next:"Show the dashboard at onboarding."},
+{id:"contract-terms",cat:6,freq:"weekly",
+ q:"I don’t want to be locked into a contract.",
+ behind:"Fear of a long term with penalties.",
+ ask:["What term are you worried about?"],
+ say:["Terms are <span class='fill'>[your current term and cancellation terms]</span>. You can pause orders any time from the tablet, and <span class='fill'>[exit terms]</span>. There’s no scenario where you’re stuck taking orders you don’t want."],
+ proof:["Term and cancellation language"],
+ dont:["Don’t misstate contract terms — ever. If you’re not sure, say you’ll confirm."],
+ next:"Send the exact term language."},
+{id:"control",cat:6,freq:"rare",
+ q:"I don’t want you controlling my menu, prices, or hours.",
+ behind:"Control. They’ve heard platforms change prices or run promos they didn’t agree to.",
+ ask:["Which part worries you most — pricing, promos, or hours?"],
+ say:["You set the menu, the prices, the hours, and whether you’re in a promo. We don’t change any of that without you. The tablet is your control panel, and what you set is what the customer sees."],
+ proof:["Show menu and hours editing on the tablet"],
+ dont:["Don’t say “we’d never” — say “here’s where you set it.”"],
+ next:"Demo the controls at onboarding."}
+];
+
+// ---------- app ----------
+const board = document.getElementById('board');
+const card = document.getElementById('card');
+const chips = document.getElementById('chips');
+const q = document.getElementById('q');
+const empty = document.getElementById('empty');
+const starter = document.getElementById('starter');
+const newhire = document.getElementById('newhire');
+let activeCat = null, current = null;
+let TEAM = [];            // rep-submitted objections from Supabase
+let sb = null;
+const TEAM_KEY_STORE='switchboard.teamkey', NAME_STORE='switchboard.name';
+function teamKey(){ try{return localStorage.getItem(TEAM_KEY_STORE)||'';}catch(_){return '';} }
+function myName(){ try{return localStorage.getItem(NAME_STORE)||'';}catch(_){return '';} }
+
+function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function lines(s){return String(s||'').split('\n').map(x=>x.trim()).filter(Boolean);}
+function allItems(){return OBJECTIONS.concat(TEAM);}
+
+function renderChips(){
+  const all = document.createElement('button');
+  all.className='chip'; all.setAttribute('aria-pressed', activeCat===null);
+  all.textContent='All'; all.onclick=()=>{activeCat=null;renderChips();renderBoard();};
+  chips.replaceChildren(all);
+  CATS.forEach((c,i)=>{
+    const b=document.createElement('button');
+    b.className='chip'; b.setAttribute('aria-pressed', activeCat===i);
+    b.innerHTML=esc(c)+'<span class="n">'+allItems().filter(o=>o.cat===i).length+'</span>';
+    b.onclick=()=>{activeCat=(activeCat===i?null:i);renderChips();renderBoard();};
+    chips.appendChild(b);
+  });
+}
+
+function matches(o){
+  if(activeCat!==null && o.cat!==activeCat) return false;
+  const t=q.value.trim().toLowerCase();
+  if(!t) return true;
+  const hay=(o.q+' '+o.behind+' '+CATS[o.cat]+' '+o.say.join(' ')).toLowerCase();
+  return t.split(/\s+/).every(w=>hay.includes(w));
+}
+
+function addLine(g,o){
+  const b=document.createElement('button');
+  b.className='line'+(o.team?' team':''); b.dataset.id=o.id;
+  b.setAttribute('aria-current', current===o.id);
+  b.innerHTML='<span class="freq '+(o.freq||'weekly')+'" aria-hidden="true"></span><span class="q">'+esc(o.q)+'</span>';
+  b.onclick=()=>{location.hash=o.id;};
+  g.appendChild(b);
+}
+
+function renderBoard(){
+  board.replaceChildren();
+  let shown=0;
+  const teamItems=TEAM.filter(matches);
+  if(teamItems.length){
+    const g=document.createElement('div'); g.className='group team';
+    const h=document.createElement('h2'); h.textContent='From the team'; g.appendChild(h);
+    teamItems.forEach(o=>{addLine(g,o); shown++;});
+    board.appendChild(g);
+  }
+  CATS.forEach((c,i)=>{
+    const items=OBJECTIONS.filter(o=>o.cat===i && matches(o));
+    if(!items.length) return;
+    const g=document.createElement('div'); g.className='group';
+    const h=document.createElement('h2'); h.textContent=c; g.appendChild(h);
+    items.forEach(o=>{addLine(g,o); shown++;});
+    board.appendChild(g);
+  });
+  empty.hidden = shown>0;
+}
+
+function list(arr){return '<ul>'+arr.map(x=>'<li>'+x+'</li>').join('')+'</ul>';}
+function listEsc(arr){return arr.length?'<ul>'+arr.map(x=>'<li>'+esc(x)+'</li>').join('')+'</ul>':'<p>—</p>';}
+
+async function show(id){
+  const o=allItems().find(x=>x.id===id);
+  if(!o){ current=null; renderBoard(); return; }
+  current=id;
+  newhire.hidden=true;
+  card.classList.remove('pending');
+  const freqText={daily:'Reps hear this daily',weekly:'Comes up weekly',rare:'Rare — but know it'}[o.freq||'weekly'];
+  if(o.team){
+    // Team entries are other people's input: everything is escaped.
+    const mine = false;
+    card.innerHTML=
+      '<div class="cat">'+esc(CATS[o.cat])+' · From the team</div>'+
+      '<h2>“'+esc(o.q)+'”</h2>'+
+      '<div class="hear">'+freqText+'</div>'+
+      '<div class="by" id="by"></div>'+
+      '<div class="sec"><h3>What’s usually behind it</h3><p>'+(esc(o.behind)||'—')+'</p></div>'+
+      '<div class="sec"><h3>Ask first</h3>'+listEsc(o.ask)+'</div>'+
+      '<div class="sec"><h3>Then say</h3>'+(o.say.length?o.say.map(s=>'<p class="say">'+esc(s)+'</p>').join(''):'<p>—</p>')+'</div>'+
+      (o.dont.length?'<div class="sec"><h3>Don’t</h3><div class="dont">'+listEsc(o.dont)+'</div></div>':'')+
+      '<div class="sec"><h3>Advance to</h3><p>'+(esc(o.next)||'—')+'</p></div>'+
+      '<div class="actions"><button class="btn" id="copy">Copy link to this objection</button><button class="btn" id="copytext">Copy the “say” lines</button>'+
+      (sb?'<button class="btn" id="del">Remove from board</button>':'')+'</div>';
+    const by=document.getElementById('by');
+    if(by) by.textContent='Added by '+(o.author||'a teammate')+(o.createdAt?' · '+new Date(o.createdAt).toLocaleDateString():'');
+    const del=document.getElementById('del');
+    if(del) del.onclick=async()=>{
+      const key=teamKey()||prompt('Team password to remove this:'); if(!key) return;
+      if(!confirm('Remove this objection from the board for everyone?')) return;
+      const {error}=await sb.rpc('delete_objection',{p_key:key,p_id:o.id.replace(/^t-/,'')});
+      if(error){ del.textContent = /password/i.test(error.message)?'Wrong team password':'Couldn’t remove — try again'; return; }
+      try{localStorage.setItem(TEAM_KEY_STORE,key);}catch(_){}
+      location.hash=''; await loadTeam();
+    };
+  } else {
+  card.innerHTML=
+    '<div class="cat">'+esc(CATS[o.cat])+'</div>'+
+    '<h2>“'+esc(o.q)+'”</h2>'+
+    '<div class="hear">'+freqText+'</div>'+
+    '<div class="sec"><h3>What’s usually behind it</h3><p>'+o.behind+'</p></div>'+
+    '<div class="sec"><h3>Ask first</h3>'+list(o.ask)+'</div>'+
+    '<div class="sec"><h3>Then say</h3>'+o.say.map(s=>'<p class="say">'+s+'</p>').join('')+'</div>'+
+    '<div class="sec"><h3>Proof to bring</h3>'+list(o.proof)+'</div>'+
+    '<div class="sec"><h3>Don’t</h3><div class="dont">'+list(o.dont)+'</div></div>'+
+    '<div class="sec"><h3>Advance to</h3><p>'+o.next+'</p></div>'+
+    '<div class="actions"><button class="btn" id="copy">Copy link to this objection</button><button class="btn" id="copytext">Copy the “say” lines</button></div>';
+  }
+  document.getElementById('copy').onclick=async e=>{
+    try{ await navigator.clipboard.writeText(location.href); e.target.textContent='Link copied'; e.target.classList.add('ok'); }catch(_){ e.target.textContent='Copy failed — use the address bar'; }
+  };
+  document.getElementById('copytext').onclick=async e=>{
+    let text=o.say.join('\n\n');
+    if(!o.team){ const tmp=document.createElement('div'); tmp.innerHTML=text; text=tmp.textContent; }
+    try{ await navigator.clipboard.writeText(text); e.target.textContent='Copied'; e.target.classList.add('ok'); }catch(_){ e.target.textContent='Copy failed'; }
+  };
+  renderBoard();
+  if(window.innerWidth<=820) card.scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+// ---------- shared team entries (Supabase) ----------
+const addbtn=document.getElementById('addbtn');
+const dlg=document.getElementById('dlg');
+const fcat=document.getElementById('f-cat');
+CATS.forEach((c,i)=>{const op=document.createElement('option');op.value=i;op.textContent=c;fcat.appendChild(op);});
+
+function fromRow(x){
+  return {id:'t-'+x.id, team:true, q:String(x.q||'').slice(0,140), cat:Number.isInteger(x.cat)&&x.cat>=0&&x.cat<CATS.length?x.cat:0,
+    freq:'weekly', behind:String(x.behind||''), ask:Array.isArray(x.ask)?x.ask.map(String):[], say:Array.isArray(x.say)?x.say.map(String):[],
+    dont:Array.isArray(x.dont)?x.dont.map(String):[], next:String(x.next||''), author:String(x.author||'').slice(0,60),
+    createdAt:x.created_at||null};
+}
+
+async function loadTeam(){
+  if(!sb) return;
+  const {data,error}=await sb.from('team_objections').select('*').order('created_at',{ascending:false}).limit(500);
+  if(error){ console.error(error); return; }
+  TEAM=(data||[]).map(fromRow).filter(o=>o.q);
+  renderChips(); renderBoard();
+  if(current && current.startsWith('t-')) { if(TEAM.some(o=>o.id===current)) show(current); else location.hash=''; }
+  else if(location.hash.replace(/^#/,'').startsWith('t-') && !current) route();
+}
+
+function boot(){
+  if(!window.supabase || !CONFIG.SUPABASE_URL || /YOUR-PROJECT/.test(CONFIG.SUPABASE_URL)) return; // not configured yet: static board only
+  sb=window.supabase.createClient(CONFIG.SUPABASE_URL, CONFIG.SUPABASE_ANON_KEY);
+  addbtn.hidden=false;
+  loadTeam();
+  setInterval(loadTeam, 60000);
+  document.addEventListener('visibilitychange',()=>{ if(!document.hidden) loadTeam(); });
+}
+
+addbtn.onclick=()=>{ document.getElementById('f-err').textContent=''; document.getElementById('f-name').value=myName(); document.getElementById('f-key').value=teamKey(); dlg.showModal(); };
+document.getElementById('f-cancel').onclick=()=>dlg.close();
+document.getElementById('f-save').onclick=async()=>{
+  const q=document.getElementById('f-q').value.trim();
+  const say=lines(document.getElementById('f-say').value);
+  const name=document.getElementById('f-name').value.trim();
+  const key=document.getElementById('f-key').value.trim();
+  const err=document.getElementById('f-err');
+  if(q.length<6){ err.textContent='Write what the operator actually said.'; return; }
+  if(!say.length){ err.textContent='Add at least one line for “Then say” — that’s the part the next rep needs.'; return; }
+  if(!name){ err.textContent='Add your name so the team knows who to ask about it.'; return; }
+  if(!key){ err.textContent='Team password is required.'; return; }
+  const btn=document.getElementById('f-save'); btn.disabled=true; btn.textContent='Saving…';
+  const {data,error}=await sb.rpc('add_objection',{p_key:key, p_q:q, p_cat:Number(fcat.value), p_behind:document.getElementById('f-behind').value.trim(),
+    p_ask:lines(document.getElementById('f-ask').value), p_say:say, p_dont:lines(document.getElementById('f-dont').value),
+    p_next:document.getElementById('f-next').value.trim(), p_author:name});
+  btn.disabled=false; btn.textContent='Save to the board';
+  if(error){ err.textContent = /password/i.test(error.message)?'Wrong team password.':'Couldn’t save. Try once more.'; return; }
+  try{ localStorage.setItem(NAME_STORE,name); localStorage.setItem(TEAM_KEY_STORE,key); }catch(_){}
+  dlg.close(); ['f-q','f-behind','f-ask','f-say','f-dont','f-next'].forEach(i=>document.getElementById(i).value='');
+  await loadTeam();
+  location.hash='t-'+data;
+};
+
+function route(){
+  const h=location.hash.replace(/^#/,'');
+  if(h && allItems().some(o=>o.id===h)) show(h);
+  else { current=null; newhire.hidden=false; card.classList.add('pending'); card.innerHTML='<div><strong>Pick an objection on the left</strong><p>Or press <b>/</b> and type what the operator just said.</p></div>'; renderBoard(); }
+}
+
+STARTER.forEach(id=>{
+  const o=OBJECTIONS.find(x=>x.id===id); if(!o) return;
+  const li=document.createElement('li');
+  const b=document.createElement('button'); b.className='link'; b.textContent='“'+o.q+'”';
+  b.onclick=()=>{location.hash=id;};
+  li.appendChild(b); starter.appendChild(li);
+});
+
+q.addEventListener('input',renderBoard);
+document.addEventListener('keydown',e=>{
+  if(e.key==='/' && document.activeElement!==q){ e.preventDefault(); q.focus(); }
+  if(e.key==='Escape' && document.activeElement===q){ q.value=''; renderBoard(); q.blur(); }
+});
+window.addEventListener('hashchange',route);
+renderChips(); route(); boot();
+</script>
+</body>
+</html>
