@@ -116,7 +116,8 @@ h1 small{font-family:"Public Sans",sans-serif;font-weight:400;font-size:13px;col
 .line.team{border-left-color:var(--amber)}
 .line.team[aria-current="true"]{border-left-color:var(--green)}
 .by{font-size:13px;color:var(--ink-3);margin:-14px 0 20px}
-dialog{border:1px solid var(--line-strong);border-radius:12px;background:var(--panel);color:var(--ink);padding:0;width:min(640px,calc(100vw - 32px));max-height:calc(100vh - 32px)}
+dialog{border:1px solid var(--line-strong);border-radius:12px;background:var(--panel);color:var(--ink);padding:0;width:min(640px,calc(100vw - 32px));max-height:calc(100vh - 32px);max-height:calc(100dvh - 32px);overflow:auto;-webkit-overflow-scrolling:touch}
+.form{padding-bottom:calc(22px + env(safe-area-inset-bottom,0px))}
 dialog::backdrop{background:rgba(0,0,0,.35)}
 .form{padding:22px 24px}
 .form h2{font-family:"Source Serif 4",Georgia,serif;font-size:22px;margin:0 0 4px;font-weight:600}
